@@ -86,15 +86,12 @@ class Reactor:
             if next_pos == None:
                 continue
             prob_addup[next_pos] = pos.likelihood
-            if next_pos not in self.spaces and next_pos != self.layout[9][9]:
+            if next_pos not in self.spaces:
                 temp.append(next_pos)
             pos.likelihood = 0
         self.spaces.extend(temp)
         for node in prob_addup:
             node.likelihood += prob_addup[node]
-        # for node in self.spaces:
-        #     if node.likelihood == 0:          # does not work
-        #         self.spaces.remove(node)
         l = [x for x in self.spaces if x.likelihood!=0]
         self.spaces = l
         # print([x.likelihood for x in self.spaces])
@@ -126,10 +123,13 @@ class Reactor:
     def get_min_max(self):
         while True:
             # maximum = self.layout[0][-1]
-            maximum = self.layout[int(self.rows/2)][int(self.columns/2)]
-            # minimum = min(self.spaces, key = attrgetter('likelihood'))
+            # maximum = self.layout[int(self.rows/2)][int(self.columns/2)]
+            maximum = max(self.spaces, key = attrgetter('likelihood'))
             minimum = self.spaces[-1]
             if minimum != maximum:
+                return minimum, maximum
+            else:
+                minimum=self.spaces[-2]
                 return minimum, maximum
 
     def display(self):

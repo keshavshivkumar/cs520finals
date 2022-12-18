@@ -34,6 +34,30 @@ def bfs(start_node, end_node):
     
     return get_bfs_path(came_from, current_node)
 
+def visualize(reactor:Reactor):
+    disp = np.zeros([reactor.rows, reactor.columns])
+    for i in range(reactor.rows):
+        for j in range(reactor.columns):
+            if reactor.layout[i][j].spot==0:
+                disp[i][j] = np.nan
+            else:
+                disp[i][j] = reactor.layout[i][j].likelihood
+    plt.imshow(disp)
+    plt.savefig('viz/' + datetime.utcnow().strftime("%d%H%M%S%f") +'.png')
+    # plt.show()
+
+def display_reactor(reactor:Reactor):
+    disp = np.zeros([reactor.rows, reactor.columns])
+    for i in range(reactor.rows):
+        for j in range(reactor.columns):
+            if reactor.layout[i][j].spot==0:
+                disp[i][j] = None
+            else:
+                disp[i][j] = reactor.layout[i][j].likelihood
+    for i in disp:
+        print([j for j in i])
+    print()
+
 def choose_next_move(min_prob, max_prob, reactor:Reactor):
     path = bfs(min_prob, max_prob)
     next_node = path[-1]
@@ -50,40 +74,15 @@ def choose_next_move(min_prob, max_prob, reactor:Reactor):
         reactor.sequence.append("down")
         reactor.probability_distribute("down")
 
-def display_reactor(reactor:Reactor):
-    disp = np.zeros([reactor.rows, reactor.columns])
-    for i in range(reactor.rows):
-        for j in range(reactor.columns):
-            if reactor.layout[i][j].spot==0:
-                disp[i][j] = None
-            else:
-                disp[i][j] = reactor.layout[i][j].likelihood
-    for i in disp:
-        print([j for j in i])
-    print()
-
-def visualize(reactor:Reactor):
-    disp = np.zeros([reactor.rows, reactor.columns])
-    for i in range(reactor.rows):
-        for j in range(reactor.columns):
-            if reactor.layout[i][j].spot==0:
-                disp[i][j] = np.nan
-            else:
-                disp[i][j] = reactor.layout[i][j].likelihood
-    plt.imshow(disp)
-    plt.savefig('viz/' + datetime.utcnow().strftime("%d%H%M%S%f") +'.png')
-    # plt.show()
-
 def convergence(reactor:Reactor):
-    while reactor.layout[int(reactor.rows/2)][int(reactor.columns/2)].likelihood<0.999999:
+    while reactor.spaces[0].likelihood<0.999999 or len(reactor.spaces)>1:
         min_prob, max_prob = reactor.get_min_max()
         # print(min_prob.likelihood, max_prob.likelihood)
         choose_next_move(min_prob, max_prob, reactor)
-        display_reactor(reactor)
+        # display_reactor(reactor)
 
         # print(len(reactor.sequence))
         # visualize(reactor)
-
 
 def create_gif(length):
     directory='viz'
@@ -106,7 +105,6 @@ def remove_pngs():
             os.remove(filepath)
 
 def main():
-    minimum=1000
     # for i in range(100):
     r = Reactor()
     r.display()
@@ -118,7 +116,7 @@ def main():
     # else:
     #     minimum = len(r.sequence)
     #     print(r.sequence, len(r.sequence))
-    # create_gif(minimum)
+    # create_gif(len(r.sequence))
 
 if __name__=='__main__':
     main()
