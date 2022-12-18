@@ -86,14 +86,12 @@ class Reactor:
             if next_pos == None:
                 continue
             prob_addup[next_pos] = pos.likelihood
-            # next_pos.likelihood += pos.likelihood
-            if next_pos not in self.spaces and next_pos != self.layout[0][self.columns-1]:
+            if next_pos not in self.spaces and next_pos != self.layout[9][9]:
                 temp.append(next_pos)
             pos.likelihood = 0
         self.spaces.extend(temp)
-
         for node in prob_addup:
-            node.likelihood+=prob_addup[node]
+            node.likelihood += prob_addup[node]
         # for node in self.spaces:
         #     if node.likelihood == 0:          # does not work
         #         self.spaces.remove(node)
@@ -101,25 +99,38 @@ class Reactor:
         self.spaces = l
         # print([x.likelihood for x in self.spaces])
 
-    def get_min_max(self, minimum=None):
-        minimum=self.spaces[0]
-        temp_min = minimum
-        maximum = self.layout[0][-1]
-        mini=[minimum]
-        for i in self.spaces:
-            if i.likelihood < minimum.likelihood:
-                minimum=i
-                mini=[]
-            if i.likelihood == minimum.likelihood:
-                mini.append(i)
+    # def get_min_max(self):
+    #     minimum=self.spaces[0]
+    #     # temp_min = minimum
+    #     maximum = self.layout[0][-1]
+    #     mini=[minimum]
+    #     # print(len(self.spaces))
+    #     for i in self.spaces:
+    #         if i.likelihood < minimum.likelihood:
+    #             minimum=i
+    #             # print([x.likelihood for x in mini])
+    #             mini=[]
+                
+    #         if i.likelihood == minimum.likelihood:
+    #             mini.append(i)
+    #             # print([x.likelihood for x in mini])
+    #     # print([x.likelihood for x in mini], minimum.likelihood)         
+    #     while True:
+    #         # if temp_min.likelihood == mini[0].likelihood:
+    #         #     random_min = temp_min
+    #         # else:
+    #         random_min = random.choice(mini)
+    #         if random_min != maximum:
+    #             return random_min, maximum
+
+    def get_min_max(self):
         while True:
-            # print([x.likelihood for x in mini])
-            if temp_min.likelihood == mini[0].likelihood:
-                random_min = temp_min
-            else:
-                random_min = random.choice(mini)
-            if random_min != maximum:
-                return random_min, maximum
+            # maximum = self.layout[0][-1]
+            maximum = self.layout[int(self.rows/2)][int(self.columns/2)]
+            # minimum = min(self.spaces, key = attrgetter('likelihood'))
+            minimum = self.spaces[-1]
+            if minimum != maximum:
+                return minimum, maximum
 
     def display(self):
         self.create_layout()

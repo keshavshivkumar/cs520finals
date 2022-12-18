@@ -3,7 +3,7 @@ from queue import Queue
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-import imageio
+import imageio.v2 as imageio
 from datetime import datetime
 
 def get_bfs_path(came_from: dict, end_node):
@@ -75,24 +75,21 @@ def visualize(reactor:Reactor):
     # plt.show()
 
 def convergence(reactor:Reactor):
-    # display_reactor(reactor)
-    mini=reactor.spaces[0]
-    while reactor.layout[0][-1].likelihood<0.999999:
+    while reactor.layout[int(reactor.rows/2)][int(reactor.columns/2)].likelihood<0.999999:
         min_prob, max_prob = reactor.get_min_max()
-        mini=min_prob
-        print(min_prob.likelihood, max_prob.likelihood)
+        # print(min_prob.likelihood, max_prob.likelihood)
         choose_next_move(min_prob, max_prob, reactor)
-        # display_reactor(reactor)
+        display_reactor(reactor)
 
         # print(len(reactor.sequence))
         # visualize(reactor)
 
 
-def create_gif():
+def create_gif(length):
     directory='viz'
     images = os.listdir(directory)
     filtered_images=[file for file in images if file.endswith('.png')]
-    with imageio.get_writer(directory+'/'+'viz.gif', mode='I') as writer:
+    with imageio.get_writer(directory+'/viz_'+f'{length}.gif', mode='I') as writer:
         for filename in filtered_images:
             image = imageio.imread(directory+'/'+filename)
             writer.append_data(image)
@@ -100,13 +97,28 @@ def create_gif():
             filepath=os.path.join(directory, filename)
             os.remove(filepath)
 
+def remove_pngs():
+    directory = 'viz'
+    images = os.listdir(directory)
+    filtered_images=[file for file in images if file.endswith('.png')]
+    for filename in filtered_images:
+            filepath=os.path.join(directory, filename)
+            os.remove(filepath)
+
 def main():
+    minimum=1000
+    # for i in range(100):
     r = Reactor()
     r.display()
     r.probability_initialize()
     convergence(r)
     print(r.sequence, len(r.sequence))
-    # create_gif()
+    # if len(r.sequence)>=minimum:
+    #     remove_pngs()
+    # else:
+    #     minimum = len(r.sequence)
+    #     print(r.sequence, len(r.sequence))
+    # create_gif(minimum)
 
 if __name__=='__main__':
     main()
