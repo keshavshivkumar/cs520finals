@@ -50,6 +50,18 @@ def choose_next_move(min_prob, max_prob, reactor:Reactor):
         reactor.sequence.append("down")
         reactor.probability_distribute("down")
 
+def display_reactor(reactor:Reactor):
+    disp = np.zeros([reactor.rows, reactor.columns])
+    for i in range(reactor.rows):
+        for j in range(reactor.columns):
+            if reactor.layout[i][j].spot==0:
+                disp[i][j] = None
+            else:
+                disp[i][j] = reactor.layout[i][j].likelihood
+    for i in disp:
+        print([j for j in i])
+    print()
+
 def visualize(reactor:Reactor):
     disp = np.zeros([reactor.rows, reactor.columns])
     for i in range(reactor.rows):
@@ -59,27 +71,22 @@ def visualize(reactor:Reactor):
             else:
                 disp[i][j] = reactor.layout[i][j].likelihood
     plt.imshow(disp)
-    # plt.savefig('viz/' + datetime.utcnow().strftime("%d%H%M%S%f") +'.png')
+    plt.savefig('viz/' + datetime.utcnow().strftime("%d%H%M%S%f") +'.png')
     # plt.show()
 
 def convergence(reactor:Reactor):
-    
+    # display_reactor(reactor)
+    mini=reactor.spaces[0]
     while reactor.layout[0][-1].likelihood<0.999999:
         min_prob, max_prob = reactor.get_min_max()
-        # print(min_prob.likelihood, max_prob.likelihood)
+        mini=min_prob
+        print(min_prob.likelihood, max_prob.likelihood)
         choose_next_move(min_prob, max_prob, reactor)
-        # disp = np.zeros([reactor.rows, reactor.columns])
-        # for i in range(reactor.rows):
-        #     for j in range(reactor.columns):
-        #         if reactor.layout[i][j].spot==0:
-        #             disp[i][j] = None
-        #         else:
-        #             disp[i][j] = reactor.layout[i][j].likelihood
-        # for i in disp:
-        #     print([j for j in i])
-        # print()
-        print(len(reactor.sequence))
+        # display_reactor(reactor)
+
+        # print(len(reactor.sequence))
         # visualize(reactor)
+
 
 def create_gif():
     directory='viz'

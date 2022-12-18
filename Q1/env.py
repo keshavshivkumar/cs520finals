@@ -28,8 +28,8 @@ class Reactor:
             for j in range(self.columns):
                 if line[j] == '_':
                     self.layout[i][j]=Space(spot=1)
-                    if i == 0 and j == self.columns-1:
-                        continue
+                    # if i == 0 and j == self.columns-1:
+                    #     continue
                     self.spaces.append(self.layout[i][j])
                 elif line[j] == 'X':
                     self.layout[i][j]=Space(spot=0)
@@ -60,7 +60,6 @@ class Reactor:
                     self.layout[i][j].neighbors.add(self.layout[i][j].down)
                 else:
                     self.layout[i][j].down = None
-        self.maximum = self.layout[0][-1]
 
     def probability_initialize(self):
         count=len(self.spaces)
