@@ -2,10 +2,14 @@ from env import Space, Reactor
 from queue import Queue
 import os
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import imageio.v2 as imageio
 from datetime import datetime
 
+'''
+BFS
+'''
 def get_bfs_path(came_from: dict, end_node):
     cur_node = end_node
     path = [cur_node]
@@ -34,6 +38,9 @@ def bfs(start_node, end_node):
     
     return get_bfs_path(came_from, current_node)
 
+'''
+visualizes the reactor into a png
+'''
 def visualize(reactor:Reactor):
     disp = np.zeros([reactor.rows, reactor.columns])
     for i in range(reactor.rows):
@@ -42,10 +49,16 @@ def visualize(reactor:Reactor):
                 disp[i][j] = np.nan
             else:
                 disp[i][j] = reactor.layout[i][j].likelihood
-    plt.imshow(disp)
+    cmap = matplotlib.cm.get_cmap('coolwarm')
+    cmap.set_bad('black', 1.)
+    plt.imshow(disp, cmap=cmap)
+    plt.title(f'Seq. length: {len(reactor.sequence)}, Move: {reactor.sequence[-1]}')
     plt.savefig('viz/' + datetime.utcnow().strftime("%d%H%M%S%f") +'.png')
-    # plt.show()
+    plt.show()
 
+'''
+displays the reactor in the form of a NumPy array of probabilities
+'''
 def display_reactor(reactor:Reactor):
     disp = np.zeros([reactor.rows, reactor.columns])
     for i in range(reactor.rows):
@@ -54,10 +67,14 @@ def display_reactor(reactor:Reactor):
                 disp[i][j] = None
             else:
                 disp[i][j] = reactor.layout[i][j].likelihood
+    np.set_printoptions(precision=4)
     for i in disp:
-        print([j for j in i])
+        print([round(j, 4) for j in i]) # rounded to 4 decimal points for visual appeal
     print()
 
+'''
+choose the next direction the probabilities shift to based on the BFS path
+'''
 def choose_next_move(min_prob, max_prob, reactor:Reactor):
     path = bfs(min_prob, max_prob)
     next_node = path[-1]
@@ -74,16 +91,23 @@ def choose_next_move(min_prob, max_prob, reactor:Reactor):
         reactor.sequence.append("down")
         reactor.probability_distribute("down")
 
+'''
+converges the probabilities to 1 at a spot
+'''
 def convergence(reactor:Reactor):
     while reactor.spaces[0].likelihood<0.999999 or len(reactor.spaces)>1:
         min_prob, max_prob = reactor.get_min_max()
-        # print(min_prob.likelihood, max_prob.likelihood)
         choose_next_move(min_prob, max_prob, reactor)
-        # display_reactor(reactor)
 
-        # print(len(reactor.sequence))
-        # visualize(reactor)
+        # display_reactor(reactor)  # uncomment to print out the probability matrix in the terminal
 
+        print(len(reactor.sequence))
+
+        # visualize(reactor)    # uncomment to save the time frames as pngs
+
+'''
+creates a gif out of the pngs
+'''
 def create_gif(length):
     directory='viz'
     images = os.listdir(directory)
@@ -111,11 +135,6 @@ def main():
     r.probability_initialize()
     convergence(r)
     print(r.sequence, len(r.sequence))
-    # if len(r.sequence)>=minimum:
-    #     remove_pngs()
-    # else:
-    #     minimum = len(r.sequence)
-    #     print(r.sequence, len(r.sequence))
     # create_gif(len(r.sequence))
 
 if __name__=='__main__':

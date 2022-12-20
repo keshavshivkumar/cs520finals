@@ -2,6 +2,9 @@ import numpy as np
 from operator import attrgetter
 import random
 
+'''
+class for each node in the reactor
+'''
 class Space:
     def __init__(self, spot) -> None:
         self.spot = spot
@@ -12,6 +15,9 @@ class Space:
         self.likelihood = 0
         self.neighbors=set()
 
+'''
+class for the reactor environment
+'''
 class Reactor:
     def __init__(self) -> None:
         with open('Thor23-SA74-VERW-Schematic (Classified).txt', 'r') as f:
@@ -22,18 +28,22 @@ class Reactor:
         self.spaces=[]
         self.sequence=[]
     
+    '''
+    creates the base layout: an array of Space objects
+    '''
     def create_layout(self):
         for i in range(self.rows):
             line = self.lines[i]
             for j in range(self.columns):
                 if line[j] == '_':
                     self.layout[i][j]=Space(spot=1)
-                    # if i == 0 and j == self.columns-1:
-                    #     continue
                     self.spaces.append(self.layout[i][j])
                 elif line[j] == 'X':
                     self.layout[i][j]=Space(spot=0)
     
+    '''
+    connects each Space to its neighbor
+    '''
     def connect_maze(self):
         for i in range(self.rows):
             for j in range(self.columns):
@@ -61,11 +71,17 @@ class Reactor:
                 else:
                     self.layout[i][j].down = None
 
+    '''
+    initialize the probabilities of '_' to 1/199
+    '''
     def probability_initialize(self):
         count=len(self.spaces)
         for i in self.spaces:
             i.likelihood = 1/count        
 
+    '''
+    choose the neighbor based on direction
+    '''
     def movement(self, position, direction):
         if direction == "up" and position.up:
             return position.up
@@ -78,6 +94,9 @@ class Reactor:
 
         return None
 
+    '''
+    distribute probabilities based on the direction to move them
+    '''
     def probability_distribute(self, direction):
         temp = []
         prob_addup=dict()
@@ -96,48 +115,20 @@ class Reactor:
         self.spaces = l
         # print([x.likelihood for x in self.spaces])
 
-    # def get_min_max(self):
-    #     minimum=self.spaces[0]
-    #     # temp_min = minimum
-    #     maximum = self.layout[0][-1]
-    #     mini=[minimum]
-    #     # print(len(self.spaces))
-    #     for i in self.spaces:
-    #         if i.likelihood < minimum.likelihood:
-    #             minimum=i
-    #             # print([x.likelihood for x in mini])
-    #             mini=[]
-                
-    #         if i.likelihood == minimum.likelihood:
-    #             mini.append(i)
-    #             # print([x.likelihood for x in mini])
-    #     # print([x.likelihood for x in mini], minimum.likelihood)         
-    #     while True:
-    #         # if temp_min.likelihood == mini[0].likelihood:
-    #         #     random_min = temp_min
-    #         # else:
-    #         random_min = random.choice(mini)
-    #         if random_min != maximum:
-    #             return random_min, maximum
-
+    '''
+    returns the first non-zero min probability node and the first max probability node
+    '''
     def get_min_max(self):
+        l = sorted(self.spaces, key=attrgetter('likelihood'))
         while True:
-            # maximum = self.layout[0][-1]
-            # maximum = self.layout[int(self.rows/2)][int(self.columns/2)]
             maximum = max(self.spaces, key = attrgetter('likelihood'))
-            minimum = self.spaces[-1]
+            minimum = l[0]
             if minimum != maximum:
                 return minimum, maximum
             else:
-                minimum=self.spaces[-2]
+                minimum=l[1]
                 return minimum, maximum
 
     def display(self):
         self.create_layout()
         self.connect_maze()
-
-# def main():
-#     r = Reactor()
-#     reactor = r.display()
-#     for i in reactor:
-#         print([j.spot for j in i])
