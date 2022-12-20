@@ -54,7 +54,7 @@ def visualize(reactor:Reactor):
     plt.imshow(disp, cmap=cmap)
     plt.title(f'Seq. length: {len(reactor.sequence)}, Move: {reactor.sequence[-1]}')
     plt.savefig('viz/' + datetime.utcnow().strftime("%d%H%M%S%f") +'.png')
-    plt.show()
+    # plt.show()
 
 '''
 displays the reactor in the form of a NumPy array of probabilities
@@ -101,7 +101,7 @@ def convergence(reactor:Reactor):
 
         # display_reactor(reactor)  # uncomment to print out the probability matrix in the terminal
 
-        print(len(reactor.sequence))
+        # print(len(reactor.sequence))
 
         # visualize(reactor)    # uncomment to save the time frames as pngs
 
@@ -134,7 +134,8 @@ def main():
     r.display()
     r.probability_initialize()
     convergence(r)
-    print(r.sequence, len(r.sequence))
+    print(r.sequence)
+    print(f'Length of sequence: len(r.sequence)')
     # create_gif(len(r.sequence))
 
 if __name__=='__main__':
